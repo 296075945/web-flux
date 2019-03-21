@@ -1,8 +1,8 @@
 package com.wy.flux.web;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 
@@ -19,8 +19,9 @@ public class TestController {
 
     private final Logger logger = LoggerFactory.getLogger(TestController.class);
 
-    private Map<String, User> userMap = new HashMap<>();
-    private Map<String, User> tokenUserMap = new HashMap<>();
+    private Map<String, User> userMap = new ConcurrentHashMap<>();
+    private Map<String, User> tokenUserMap = new ConcurrentHashMap<>();
+    private Map<User, String> userTokenMap = new ConcurrentHashMap<>();
 
     @PostConstruct
     private void init() {
@@ -37,9 +38,13 @@ public class TestController {
         }
         User user = userMap.get(param.getUsername());
         if (param.getPassword().equals(user.getPassword())) {
-            String token = UUID.randomUUID().toString().replace("-", "");
+            String token = userTokenMap.get(user);
+            if (token == null) {
+                token = UUID.randomUUID().toString().replace("-", "");
+            }
             tokenUserMap.put(token, user);
-            logger.info("login success . username:{},token:{}",param.getUsername(),token);
+            userTokenMap.put(user, token);
+            logger.info("login success . username:{},token:{}", param.getUsername(), token);
             return new UserLoginResult(UserLoginResultEnum.SUCCESS, token);
         } else {
             return new UserLoginResult(UserLoginResultEnum.USERNAME_PASSWORD_ERROR);
