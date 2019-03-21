@@ -1,27 +1,48 @@
 package com.wy.flux.web;
 
-import java.util.Map;
-
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 public class FluxController {
 
-    @RequestMapping("/hello")
-    public String hello() {
-        return "hello world";
+    @RequestMapping("/mono")
+    public Mono<String> mono() {
+        return Mono.justOrEmpty(null);
     }
-    
-    @RequestMapping("/hello/{id}")
-    public String path(@PathVariable(name="id") int id) {
-        return "hello : "+id;
+
+    @RequestMapping("/flux")
+    public Flux<String> flux() {
+        return Flux.just("hello", "world");
     }
-    
-    @RequestMapping("/json")
-    public Map<String, Object> json(@RequestBody Map<String, Object> map) {
-        return map;
+
+    @RequestMapping("/flux2")
+    public Flux<User2> flux2() {
+        return Flux.just(new User2("hello"), new User2("world"));
     }
+
+    @RequestMapping("/flux3")
+    public Flux<User2> flux3() {
+        return Flux.just(new User2("hello"));
+    }
+}
+
+class User2 {
+    private String name;
+
+    public User2(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }
